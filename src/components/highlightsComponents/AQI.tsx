@@ -1,6 +1,6 @@
 import { useWeatherHook } from "@/context/WeatherContext";
-import { Loader } from "lucide-react";
 import { LuWind } from "react-icons/lu";
+import Loader from "../ui/Loader";
 
 const AQI = () => {
   const { airPolData } = useWeatherHook();
