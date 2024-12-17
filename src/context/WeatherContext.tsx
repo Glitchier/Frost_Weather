@@ -179,9 +179,9 @@ export const WeatherProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     if (typeof window !== "undefined") {
       localStorage.setItem("city", city);
-      fetchCurData();
-      fetchAirPollution();
     }
+    fetchCurData();
+    fetchAirPollution();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [city]);
 
