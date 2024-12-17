@@ -33,12 +33,9 @@ export const WeatherContext = createContext<WeatherContextType | undefined>(
 );
 
 export const WeatherProvider = ({ children }: { children: ReactNode }) => {
-  const [city, setCity] = useState<string>(() => {
-    if (typeof window !== "undefined") {
-      return localStorage.getItem("city") ?? "Delhi";
-    }
-    return "Delhi"; // Default city when SSR
-  });
+  const [city, setCity] = useState<string>(
+    localStorage.getItem("city") ?? "Delhi"
+  );
 
   const [currentData, setCurrentData] = useState<CurrentWeatherDataType>();
   const [airPolData, setAirPolData] = useState<AirPolDataType | undefined>(
