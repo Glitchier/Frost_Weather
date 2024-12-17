@@ -41,7 +41,9 @@ export const WeatherProvider = ({ children }: { children: ReactNode }) => {
   });
 
   const [currentData, setCurrentData] = useState<CurrentWeatherDataType>();
-  const [airPolData, setAirPolData] = useState<AirPolDataType>();
+  const [airPolData, setAirPolData] = useState<AirPolDataType | undefined>(
+    undefined
+  );
   const [fiveDaysData, setFiveDaysData] =
     useState<FiveDaysWeatherListDataType[]>();
   const [hrsData, setHrsData] = useState<FiveDaysWeatherDataType>();
@@ -109,7 +111,6 @@ export const WeatherProvider = ({ children }: { children: ReactNode }) => {
   const getLocationData = async () => {
     try {
       const fetchedLocation = await fetchLocation(); // Fetches coordinates
-
       await geoLocationName(fetchedLocation);
     } catch (error) {
       console.error("Error fetching location:", (error as Error).message);
@@ -151,7 +152,7 @@ export const WeatherProvider = ({ children }: { children: ReactNode }) => {
   const fetchAirPollution = async () => {
     setFiveDaysLoading(true);
     try {
-      const geoRes = await fetch(
+      const geoRes: [{ lat: number; lon: number }] = await fetch(
         `http://api.openweathermap.org/geo/1.0/direct?q=${city}&limit=1&appid=${API_CONFIG.API_KEY}`
       ).then((res) => res.json());
 
@@ -179,9 +180,9 @@ export const WeatherProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     if (typeof window !== "undefined") {
       localStorage.setItem("city", city);
+      fetchCurData();
+      fetchAirPollution();
     }
-    fetchCurData();
-    fetchAirPollution();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [city]);
 
