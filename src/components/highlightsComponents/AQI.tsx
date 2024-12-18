@@ -45,7 +45,7 @@ const AQI = () => {
                     ? 4
                     : 5
                 ]
-              } px-4 py-1 border-2 rounded-full text-sm tracking-wider font-semibold`}
+              } px-2 py-1 border-2 text-nowrap rounded-full text-xs tracking-wider font-semibold`}
             >
               {AQI_Name[
                 airPolData.list[0].components.pm10 <= 50

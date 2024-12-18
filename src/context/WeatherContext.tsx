@@ -150,13 +150,13 @@ export const WeatherProvider = ({ children }: { children: ReactNode }) => {
     setFiveDaysLoading(true);
     try {
       const geoRes: [{ lat: number; lon: number }] = await fetch(
-        `http://api.openweathermap.org/geo/1.0/direct?q=${city}&limit=1&appid=${API_CONFIG.API_KEY}`
+        `https://api.openweathermap.org/geo/1.0/direct?q=${city}&limit=1&appid=${API_CONFIG.API_KEY}`
       ).then((res) => res.json());
 
       if (geoRes.length > 0) {
         const { lat, lon } = geoRes[0];
         const airRes = await fetch(
-          `http://api.openweathermap.org/data/2.5/air_pollution?lat=${lat}&lon=${lon}&appid=${API_CONFIG.API_KEY}`
+          `https://api.openweathermap.org/data/2.5/air_pollution?lat=${lat}&lon=${lon}&appid=${API_CONFIG.API_KEY}`
         ).then((res) => res.json());
 
         setAirPolData(airRes);
