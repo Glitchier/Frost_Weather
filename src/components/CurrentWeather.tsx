@@ -1,97 +1,71 @@
 "use client";
 
-import { useWeatherHook } from "@/context/WeatherContext";
 import Image from "next/image";
-import { FaRegCalendar } from "react-icons/fa6";
-import { SlLocationPin } from "react-icons/sl";
-import Loader from "./ui/Loader";
-import { CiGps } from "react-icons/ci";
-import { useState } from "react";
-import { toast } from "@/hooks/use-toast";
+import { CalendarDays, MapPin } from "lucide-react";
+import { useWeatherHook } from "@/context/WeatherContext";
+import { Skeleton } from "./ui/skeleton";
+import { cityTime } from "@/lib/utils";
 
 const CurrentWeather = () => {
-  const { currentData, curLoading, getLocationData } = useWeatherHook();
-  const [buttonLoading, setButtonLoading] = useState(false);
+  const { currentData, curLoading } = useWeatherHook();
 
-  const currentDateFun = () => {
-    if (currentData !== undefined) {
-      const timestampInSeconds = currentData.dt;
-      const date = new Date(timestampInSeconds * 1000);
-      return date.toLocaleDateString("en-US", {
-        weekday: "long",
-        month: "short",
-        day: "numeric",
-      });
-    }
-    return "";
-  };
+  if (!currentData) {
+    return (
+      <section className="glass flex min-h-[340px] flex-col gap-4 rounded-3xl p-6">
+        {curLoading ? (
+          <>
+            <Skeleton className="h-4 w-12 bg-ink/10" />
+            <Skeleton className="h-24 w-40 bg-ink/10" />
+            <Skeleton className="h-5 w-32 bg-ink/10" />
+            <Skeleton className="mt-auto h-12 w-full bg-ink/10" />
+          </>
+        ) : (
+          <p className="m-auto text-ink/60">Couldn&apos;t load the weather.</p>
+        )}
+      </section>
+    );
+  }
 
-  const handleLocationClick = async () => {
-    setButtonLoading(true);
-    try {
-      await getLocationData();
-    } catch (error) {
-      console.error("Failed to fetch location:", error);
-      toast({
-        title: "Failed to fetch location",
-        description: "Unable to fetch your current location. Please try again.",
-      });
-    } finally {
-      setButtonLoading(false);
-    }
-  };
+  const { main, weather, name, sys, dt, timezone } = currentData;
 
   return (
-    <section className="bg-glassBgColor border border-glassBorderColor backdrop-blur-3xl rounded-3xl p-8 w-full h-full">
-      {!curLoading && currentData !== undefined ? (
-        <div className="flex-col flex justify-center items-start gap-4 w-full h-full">
-          <p className="text-lg">Now</p>
-          <div className="flex justify-center items-center gap-4 lg:gap-8 mx-auto">
-            <p className="text-6xl w-full">
-              {Math.round(currentData.main.temp)}
-              <span className="align-super text-2xl font-semibold ml-1">
-                &deg;C
-              </span>
-            </p>
-            <Image
-              src={`/icons/${currentData.weather[0].icon}.svg`}
-              width={0}
-              height={0}
-              alt="icon"
-              className="w-auto min-h-[150px] tablet:min-h-[120px] max-h-[150px] h-full"
-              priority={false}
-            />
-          </div>
-          <p className="font-semibold text-2xl tracking-widest mx-auto">
-            {currentData.weather[0].main}
-          </p>
-          <div className="w-full h-[2px] bg-glassBgColor"></div>
-          <div className="flex justify-center items-center gap-3 mt-2">
-            <FaRegCalendar />
-            <p>{currentDateFun()}</p>
-          </div>
-          <div className="flex justify-center items-center gap-3">
-            <SlLocationPin />
-            <p>
-              {currentData.name}, {currentData.sys.country}
-            </p>
-          </div>
-          <button
-            onClick={handleLocationClick}
-            disabled={buttonLoading}
-            className={`rounded-full active:scale-[0.98] group bg-glassBgColor backdrop-blur-3xl px-5 py-3 flex justify-center items-center gap-2 mx-auto mt-4 ${
-              buttonLoading ? "opacity-50 cursor-not-allowed" : ""
-            }`}
-          >
-            <CiGps size={"1.5rem"} className="group-hover:animate-pulse" />
-            <p className="text-sm tracking-wider font-semibold pr-1">
-              {buttonLoading ? "Fetching Location..." : "Current Location"}
-            </p>
-          </button>
-        </div>
-      ) : (
-        <Loader />
-      )}
+    <section
+      aria-live="polite"
+      className={`glass flex flex-col rounded-3xl p-6 transition-opacity ${curLoading ? "opacity-60" : ""}`}
+    >
+      <p className="text-xs font-bold uppercase tracking-wider text-ink/55">Now</p>
+
+      <div className="flex items-center justify-between gap-2">
+        <p className="text-[5.5rem] font-light leading-none tracking-tight tabular-nums">
+          {Math.round(main.temp)}
+          <span className="align-top text-4xl font-normal text-ink/50">°C</span>
+        </p>
+        <Image
+          src={`/icons/${weather[0].icon}.svg`}
+          alt=""
+          width={140}
+          height={140}
+          priority
+          className="-mr-4 size-36"
+        />
+      </div>
+
+      <p className="text-xl font-bold capitalize">{weather[0].description}</p>
+      <p className="mt-1 text-sm text-ink/60 tabular-nums">
+        H {Math.round(main.temp_max)}° · L {Math.round(main.temp_min)}° · Feels{" "}
+        {Math.round(main.feels_like)}°
+      </p>
+
+      <div className="mt-6 flex flex-col gap-2.5 border-t border-ink/10 pt-5 text-sm">
+        <p className="flex items-center gap-2.5">
+          <CalendarDays className="size-4 text-ink/50" />
+          {cityTime(dt, timezone, { weekday: "long", day: "numeric", month: "short" })}
+        </p>
+        <p className="flex items-center gap-2.5">
+          <MapPin className="size-4 text-ink/50" />
+          {name}, {sys.country}
+        </p>
+      </div>
     </section>
   );
 };

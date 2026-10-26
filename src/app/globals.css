@@ -1,61 +1,32 @@
-@import url("https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap");
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* #030014 
-#7ED7C1
-#7286D3
-#CB80AB
-
-#00E400
-#FFFF00
-#FF7E00
-#FF0000
-#7925C7
-#7E0023
-*/
-
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: "Nunito";
-  color: rgba(var(--textColor));
-}
-
-html,
-body {
-  background-color: rgba(var(--bgColor));
-  min-width: 360px;
-}
-
-@layer utilities {
-  .animation-delay-2000 {
-    animation-delay: 2s;
-  }
-  .animation-delay-4000 {
-    animation-delay: 4s;
-  }
-}
-
 :root {
+  --ink: 3 0 20;
   --bgColor: 230, 230, 230;
-  --textColor: 3, 0, 20;
   --glassBgColor: 250, 250, 250, 0.4;
   --glassBorderColor: 245, 245, 245, 0.6;
+  --glassTint: 255, 255, 255, 0.3;
+  --glassEdge: 255, 255, 255, 0.95;
+  --glassEdgeDim: 255, 255, 255, 0.35;
+  --glassGlow: 255, 255, 255, 0.45;
+  --glassShadow: 30, 20, 60, 0.12;
   --bgBlobColor1: 126, 215, 193, 0.8;
   --bgBlobColor2: 114, 134, 211, 0.8;
   --bgBlobColor3: 203, 128, 171, 0.8;
 }
 
 .dark {
+  --ink: 250 250 250;
   --bgColor: 3, 0, 20;
-  --textColor: 250, 250, 250;
   --glassBgColor: 3, 0, 20, 0.4;
-  --glassBorderColor: 245, 245, 245, 0.3;
+  --glassBorderColor: 245, 245, 245, 0.18;
+  --glassTint: 255, 255, 255, 0.06;
+  --glassEdge: 255, 255, 255, 0.4;
+  --glassEdgeDim: 255, 255, 255, 0.12;
+  --glassGlow: 255, 255, 255, 0.08;
+  --glassShadow: 0, 0, 0, 0.35;
   --bgBlobColor1: 126, 215, 193, 0.7;
   --bgBlobColor2: 114, 134, 211, 0.7;
   --bgBlobColor3: 203, 128, 171, 0.7;
@@ -82,12 +53,7 @@ body {
     --border: 0 0% 89.8%;
     --input: 0 0% 89.8%;
     --ring: 0 0% 3.9%;
-    --chart-1: 12 76% 61%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
-    --radius: 0.5rem;
+    --radius: 0.75rem;
   }
   .dark {
     --background: 0 0% 3.9%;
@@ -109,39 +75,92 @@ body {
     --border: 0 0% 14.9%;
     --input: 0 0% 14.9%;
     --ring: 0 0% 83.1%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
   }
-}
 
-@layer base {
   * {
     @apply border-border;
   }
+
   body {
-    @apply bg-background text-foreground;
+    min-width: 320px;
+    background-color: rgba(var(--bgColor));
+    color: rgb(var(--ink));
+    -webkit-font-smoothing: antialiased;
   }
 }
 
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+@layer components {
+  /* Liquid-glass surface: no solid border, just a specular rim that catches
+     light on opposite corners and fades out along the sides. */
+  .glass {
+    position: relative;
+    isolation: isolate;
+    background:
+      linear-gradient(
+        135deg,
+        rgba(var(--glassTint)) 0%,
+        transparent 50%,
+        rgba(var(--glassTint)) 100%
+      ),
+      rgba(var(--glassBgColor));
+    box-shadow:
+      inset 0 0 12px rgba(var(--glassGlow)),
+      0 8px 32px -8px rgba(var(--glassShadow)),
+      0 2px 6px -2px rgba(var(--glassShadow));
+    -webkit-backdrop-filter: blur(28px) saturate(180%) brightness(1.04);
+    backdrop-filter: blur(28px) saturate(180%) brightness(1.04);
+  }
+  .glass::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    padding: 1px;
+    border-radius: inherit;
+    pointer-events: none;
+    background: linear-gradient(
+      135deg,
+      rgba(var(--glassEdge)) 0%,
+      rgba(var(--glassEdgeDim)) 20%,
+      transparent 40%,
+      transparent 60%,
+      rgba(var(--glassEdgeDim)) 80%,
+      rgba(var(--glassEdge)) 100%
+    );
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+  }
+
+  /* nested surface inside a .glass panel */
+  .glass-inset {
+    background: rgba(var(--glassTint));
+    box-shadow:
+      inset 0 1px 0.5px rgba(var(--glassEdgeDim)),
+      inset 0 0 8px rgba(var(--glassGlow));
+  }
+
+  .no-scrollbar {
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
 }
 
-::-webkit-scrollbar-track {
-  background: rgba(var(--glassBgColor));
-  border-radius: 1000px;
+@layer utilities {
+  .animation-delay-2000 {
+    animation-delay: 2s;
+  }
+  .animation-delay-4000 {
+    animation-delay: 4s;
+  }
 }
 
-::-webkit-scrollbar-thumb {
-  background: rgba(var(--textColor), 0.4);
-  border-radius: 1000px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(var(--textColor), 0.6);
-  transition: 0.3s;
+@media (prefers-reduced-motion: reduce) {
+  .animate-blob {
+    animation: none;
+  }
 }

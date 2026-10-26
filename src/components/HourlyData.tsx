@@ -1,104 +1,70 @@
-import { Card, CardContent } from "@/components/ui/card";
+import Image from "next/image";
+import { Clock } from "lucide-react";
 import { useWeatherHook } from "@/context/WeatherContext";
-import {
-  CartesianGrid,
-  Line,
-  LineChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
-import { format } from "date-fns";
-
-import Loader from "./ui/Loader";
+import { Skeleton } from "./ui/skeleton";
+import Panel from "./Panel";
+import { cityTime } from "@/lib/utils";
 
 const HourlyData = () => {
-  const { hrsData } = useWeatherHook();
+  const { hrsData, currentData } = useWeatherHook();
+
+  const hours =
+    hrsData && currentData
+      ? [
+          {
+            label: "Now",
+            icon: currentData.weather[0].icon,
+            temp: currentData.main.temp,
+            pop: 0,
+          },
+          ...hrsData.list.slice(0, 8).map((h) => ({
+            label: cityTime(h.dt, currentData.timezone, {
+              hour: "2-digit",
+              minute: "2-digit",
+            }),
+            icon: h.weather[0].icon,
+            temp: h.main.temp,
+            pop: h.pop,
+          })),
+        ]
+      : undefined;
 
   return (
-    <section className="bg-glassBgColor font-Nunito border flex flex-col justify-center items-start border-glassBorderColor backdrop-blur-3xl rounded-3xl p-8 w-full h-full space-y-4">
-      {hrsData !== undefined ? (
-        <>
-          <h1 className="text-lg">Today&apos;s Temprature</h1>
-          <Card className="w-full h-full bg-glassBgColor border-glassBorderColor">
-            <CardContent className="h-full w-full pt-6 pl-0">
-              <div className="w-full min-h-[200px] h-full">
-                <ResponsiveContainer
-                  width={"100%"}
-                  height={"100%"}
-                  minHeight={240}
+    <Panel title="Today" icon={Clock}>
+      <ol className="no-scrollbar -mx-5 mt-4 flex gap-2 overflow-x-auto px-5">
+        {hours
+          ? hours.map((h, i) => (
+              <li
+                key={i}
+                className={`flex min-w-[4.5rem] flex-1 flex-col items-center gap-1 rounded-2xl py-3 ${i === 0 ? "glass-inset" : ""}`}
+              >
+                <span
+                  className={`text-xs tabular-nums ${i === 0 ? "font-bold" : "text-ink/60"}`}
                 >
-                  <LineChart
-                    data={hrsData.list.slice(0, 8).map((item) => ({
-                      time: format(new Date(item.dt * 1000), "ha"),
-                      temp: Math.round(item.main.temp),
-                      feels_like: Math.round(item.main.feels_like),
-                    }))}
-                    margin={{ top: 5, right: 20, bottom: 5, left: 0 }}
-                  >
-                    <XAxis
-                      dataKey="time"
-                      stroke="#888"
-                      fontSize={12}
-                      tickLine={false}
-                      axisLine={false}
-                    />
-                    <YAxis
-                      stroke="#888"
-                      fontSize={12}
-                      tickLine={false}
-                      axisLine={false}
-                      tickFormatter={(value) => `${value}°`}
-                    />
-                    <Tooltip
-                      content={({ active, payload }) => {
-                        if (active && payload && payload.length) {
-                          return (
-                            <div className="rounded-lg flex flex-col gap-2 bg-glassBgColor border-glassBgColor shadow-md backdrop-blur-3xl border p-4">
-                              <div className="flex justify-between items-center gap-2">
-                                <span>Temp</span>
-                                <span>{payload[0].value}°</span>
-                              </div>
-                              <div className="flex justify-between items-center gap-2">
-                                <span>Feels Like</span>
-                                <span>{payload[1].value}°</span>
-                              </div>
-                            </div>
-                          );
-                        }
-                      }}
-                    />
-                    <Line
-                      type="monotone"
-                      dataKey="temp"
-                      stroke="#146cc9"
-                      strokeWidth={2}
-                      dot={false}
-                    />
-                    <Line
-                      type="monotone"
-                      dataKey="feels_like"
-                      stroke="#74b1f1"
-                      strokeWidth={2}
-                      dot={false}
-                      strokeDasharray={"5 5"}
-                    />
-                    <CartesianGrid
-                      stroke="#888"
-                      strokeDasharray="5 5"
-                      className="opacity-30"
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
-            </CardContent>
-          </Card>
-        </>
-      ) : (
-        <Loader />
-      )}
-    </section>
+                  {h.label}
+                </span>
+                <Image
+                  src={`/icons/${h.icon}.svg`}
+                  alt=""
+                  width={52}
+                  height={52}
+                  className="size-[52px]"
+                />
+                <span className="text-lg font-bold tabular-nums">
+                  {Math.round(h.temp)}°
+                </span>
+                <span className="h-4 text-[11px] font-bold tabular-nums text-sky-600 dark:text-sky-300">
+                  {h.pop >= 0.2 && `${Math.round(h.pop * 100)}%`}
+                </span>
+              </li>
+            ))
+          : Array.from({ length: 9 }, (_, i) => (
+              <li key={i} className="min-w-[4.5rem] flex-1">
+                <Skeleton className="h-32 rounded-2xl bg-ink/10" />
+              </li>
+            ))}
+      </ol>
+    </Panel>
   );
 };
 

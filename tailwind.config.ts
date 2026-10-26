@@ -3,7 +3,6 @@ import type { Config } from "tailwindcss";
 export default {
     darkMode: ["class"],
     content: [
-    "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
@@ -13,10 +12,11 @@ export default {
 			'tablet': '934px',			
 		},
   		fontFamily: {
-  			Montserrat: 'Montserrat',
-			Nunito:"Nunito",
+  			sans: ['var(--font-nunito)', 'system-ui', 'sans-serif'],
+  			Montserrat: ['var(--font-montserrat)', 'sans-serif'],
   		},
   		colors: {
+  			ink: 'rgb(var(--ink) / <alpha-value>)',
   			glassBgColor: 'rgba(var(--glassBgColor))',
   			glassBorderColor: 'rgba(var(--glassBorderColor))',
 			blobColor1:"rgba(var(--bgBlobColor1))",

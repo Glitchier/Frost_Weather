@@ -1,5 +1,12 @@
 import { Toaster } from "@/components/ui/toaster";
+import { Montserrat, Nunito } from "next/font/google";
 import "./globals.css";
+
+const nunito = Nunito({ subsets: ["latin"], variable: "--font-nunito" });
+const montserrat = Montserrat({
+  subsets: ["latin"],
+  variable: "--font-montserrat",
+});
 
 export const metadata = {
   title: "FrostWeather",
@@ -12,8 +19,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body>
+    <html
+      lang="en"
+      className={`${nunito.variable} ${montserrat.variable}`}
+      suppressHydrationWarning
+    >
+      <body className="font-sans">
         <Toaster />
         {children}
       </body>
